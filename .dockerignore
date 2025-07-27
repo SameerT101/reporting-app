@@ -1,0 +1,39 @@
+# Ignore build artifacts and cache
+target/
+*.jar
+*.war
+
+# Ignore IDE files
+.idea/
+.vscode/
+*.iml
+*.ipr
+*.iws
+
+# Ignore OS files
+.DS_Store
+Thumbs.db
+
+# Ignore Git
+.git/
+.gitignore
+
+# Ignore Docker files
+Dockerfile
+docker-compose.yml
+.dockerignore
+
+# Ignore logs
+*.log
+logs/
+
+# Ignore temp files
+*.tmp
+*.temp
+
+# Ignore documentation (already in image)
+README.md
+
+# Ignore scripts (not needed in container)
+start.sh
+stop.sh

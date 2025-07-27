@@ -1,0 +1,63 @@
+# application.yml
+server:
+  port: 3000
+
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: demo
+    password: demo
+  jpa:
+    hibernate.ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.generate_statistics: true
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+  mail:
+    host: localhost
+    port: 1025
+    username: ''
+    password: ''
+    properties.mail.smtp.auth: false
+    properties.mail.smtp.starttls.enable: false
+  security:
+    oauth2:
+      # For UI login flow
+      client:
+        registration:
+          auth0:
+            client-id: WyaMFGaoas2yhW0ZiW069OEKrpeQj0cU
+            client-secret: H47eXR2sKPkj_uvsYUd0OUrGJd8Cx-9qEjt1nb1Nxb8kDFGVrnGIXe0iUTr4eozM
+            scope: openid,profile,email,offline_access
+            authorization-grant-type: authorization_code
+            redirect-uri: http://localhost:3000/login/oauth2/code/auth0
+            client-authentication-method: client_secret_basic
+        provider:
+          auth0:
+            authorization-uri: https://dev-hyoevwsw21ygwvit.us.auth0.com/authorize
+            token-uri: https://dev-hyoevwsw21ygwvit.us.auth0.com/oauth/token
+            user-info-uri: https://dev-hyoevwsw21ygwvit.us.auth0.com/userinfo
+            jwk-set-uri: https://dev-hyoevwsw21ygwvit.us.auth0.com/.well-known/jwks.json
+            user-name-attribute: sub
+
+
+auth0:
+  domain: dev-hyoevwsw21ygwvit.us.auth0.com
+  issuer: https://dev-hyoevwsw21ygwvit.us.auth0.com/
+  client-id: WyaMFGaoas2yhW0ZiW069OEKrpeQj0cU
+  client-secret: H47eXR2sKPkj_uvsYUd0OUrGJd8Cx-9qEjt1nb1Nxb8kDFGVrnGIXe0iUTr4eozM
+  audience: https://dev-hyoevwsw21ygwvit.us.auth0.com/api/v2/
+
+logging:
+  level:
+    root: INFO
+    org.springframework.web: ERROR
+    org.springframework.security: DEBUG
+    com.sam.reporting: INFO
+    com.sam.reporting.controller: INFO
+    com.sam.reporting.controller.AuthController: INFO
+

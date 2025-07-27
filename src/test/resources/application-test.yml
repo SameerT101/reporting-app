@@ -1,0 +1,23 @@
+# application.yml
+spring:
+  datasource:
+    url: jdbc:postgresql://localhost:5432/postgres
+    username: demo
+    password: demo
+  jpa:
+    hibernate.ddl-auto: validate
+    show-sql: true
+    properties:
+      hibernate.format_sql: true
+      hibernate.generate_statistics: true
+  rabbitmq:
+    host: localhost
+    username: guest
+    password: guest
+  mail: # configure your SMTP (e.g., MailHog locally)
+    host: localhost
+    port: 1025
+    username: ''
+    password: ''
+    properties.mail.smtp.auth: false
+    properties.mail.smtp.starttls.enable: false
