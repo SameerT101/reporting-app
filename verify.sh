@@ -71,7 +71,7 @@ if docker-compose ps | grep -q "Up (healthy)"; then
     echo "  • MailHog:     http://localhost:8025"
     echo "  • RabbitMQ:    http://localhost:15672"
     echo ""
-    echo "Test login: noname@acme.com / Passw0rd$123"
+    echo "Test login: noname@acme.com / Passw0rd\$123"
 else
     echo " Some services may not be fully ready yet"
     echo "   Check logs with: docker-compose logs"
