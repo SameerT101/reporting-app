@@ -1,19 +1,19 @@
 package com.sam.reporting.config;
 
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.config.annotation.web.builders.HttpSecurity;
 import org.springframework.security.config.annotation.web.configuration.EnableWebSecurity;
-import org.springframework.security.core.Authentication;
 import org.springframework.security.web.SecurityFilterChain;
 import org.springframework.security.web.authentication.logout.LogoutHandler;
 import org.springframework.web.servlet.support.ServletUriComponentsBuilder;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
+import jakarta.servlet.http.HttpServletRequest;
+import jakarta.servlet.http.HttpServletResponse;
+import org.springframework.security.core.Authentication;
 import java.io.IOException;
 
 @Configuration
@@ -26,7 +26,7 @@ public class OAuth2SecurityConfig {
 
     @Value("${auth0.client-id}")
     private String clientId;
-
+    
     @Value("${spring.security.oauth2.client.provider.auth0.jwk-set-uri}")
     private String jwkSetUri;
 

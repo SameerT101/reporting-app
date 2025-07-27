@@ -1,17 +1,17 @@
 package com.sam.reporting.jasper;
 
 import com.sam.reporting.dto.ReportProductRow;
-import com.sam.reporting.model.Category;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.data.JRBeanCollectionDataSource;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
+import com.sam.reporting.model.Category;
 
 import java.io.InputStream;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 @Component
 public class JasperReportFactory {
@@ -30,8 +30,8 @@ public class JasperReportFactory {
             InputStream in = getClass().getResourceAsStream(resourcePath);
 
             if (in == null) {
-                System.err.println("ERROR: Resource not found at " + resourcePath);
-                System.err.println("Classpath: " + System.getProperty("java.class.path"));
+                log.error("ERROR: Resource not found at " + resourcePath);
+                log.error("Classpath: " + System.getProperty("java.class.path"));
                 throw new IllegalStateException("Template file not found at: " + resourcePath);
             }
 
@@ -43,15 +43,13 @@ public class JasperReportFactory {
             log.info("SUCCESS: Report compiled successfully!");
 
         } catch (JRException ex) {
-            System.err.println("ERROR: JasperReports Exception");
-            System.err.println("Message: " + ex.getMessage());
-            ex.printStackTrace();
+            log.error("ERROR: JasperReports Exception");
+            log.error("Message: " + ex.getMessage());
             throw new IllegalStateException("Cannot compile Jasper template: " + ex.getMessage(), ex);
         } catch (Exception ex) {
-            System.err.println("ERROR: General Exception");
-            System.err.println("Type: " + ex.getClass().getName());
-            System.err.println("Message: " + ex.getMessage());
-            ex.printStackTrace();
+            log.error("ERROR: General Exception");
+            log.error("Type: " + ex.getClass().getName());
+            log.error("Message: " + ex.getMessage());
             throw new IllegalStateException("Cannot load Jasper template: " + ex.getMessage(), ex);
         }
 
@@ -75,7 +73,7 @@ public class JasperReportFactory {
 
             // No parameters for now
             Map<String, Object> params = new HashMap<>();
-            params.put("productDataset", ds);
+            params.put("productDataset",ds);
             log.info("Filling report...");
             JasperPrint print = JasperFillManager.fillReport(template, params, new JREmptyDataSource());
 
@@ -88,8 +86,7 @@ public class JasperReportFactory {
             return pdf;
 
         } catch (JRException ex) {
-            System.err.println("ERROR in buildProductReport: " + ex.getMessage());
-            ex.printStackTrace();
+            log.error("ERROR in buildProductReport: " + ex.getMessage());
             throw new IllegalStateException("Jasper generation failed", ex);
         }
     }

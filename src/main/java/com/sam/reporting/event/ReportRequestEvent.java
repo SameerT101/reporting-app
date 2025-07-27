@@ -1,7 +1,7 @@
 package com.sam.reporting.event;
 
-import lombok.Getter;
 import org.springframework.context.ApplicationEvent;
+import lombok.Getter;
 
 /**
  * Fired immediately after a report request is accepted.
@@ -12,9 +12,7 @@ public class ReportRequestEvent extends ApplicationEvent {
 
     private final String email;
 
-    /**
-     * Spring needs the source object; we add email as payload
-     */
+    /** Spring needs the source object; we add email as payload */
     public ReportRequestEvent(Object source, String email) {
         super(source);
         this.email = email;

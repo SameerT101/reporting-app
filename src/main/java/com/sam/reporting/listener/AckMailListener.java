@@ -1,10 +1,11 @@
 package com.sam.reporting.listener;
 
-import com.sam.reporting.event.ReportRequestEvent;
-import com.sam.reporting.service.MailService;
-import lombok.RequiredArgsConstructor;
 import org.springframework.context.event.EventListener;
 import org.springframework.stereotype.Component;
+import lombok.RequiredArgsConstructor;
+
+import com.sam.reporting.service.MailService;
+import com.sam.reporting.event.ReportRequestEvent;
 
 @Component
 @RequiredArgsConstructor

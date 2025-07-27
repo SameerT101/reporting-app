@@ -9,7 +9,7 @@ import java.io.Serializable;
 /**
  * Payload sent by the REST client and passed around via RabbitMQ.
  */
-@Data          // Lombok: generates getters, setters, toString, etc.
+@Data
 public class ReportRequest implements Serializable {
 
     @NotBlank

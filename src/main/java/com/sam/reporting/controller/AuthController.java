@@ -9,9 +9,6 @@ import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.annotation.RegisteredOAuth2AuthorizedClient;
-import org.springframework.security.oauth2.core.user.OAuth2User;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.util.MultiValueMap;
@@ -40,8 +37,76 @@ public class AuthController {
 
 
     /**
-     * Logout endpoint - revokes token at Auth0 and returns logout URL
+     *  API Login using client credentials (for service-to-service authentication)
      */
+    @PostMapping("/api-login-client")
+    public ResponseEntity<ApiLoginResponse> apiLoginClient() {
+        log.info("Client credentials login attempt");
+
+        try {
+            RestTemplate restTemplate = new RestTemplate();
+            String tokenUrl = String.format("https://%s/oauth/token", auth0Domain);
+
+            // Auth0 expects form-encoded data, not JSON
+            HttpHeaders headers = new HttpHeaders();
+            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
+
+            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
+            requestBody.add("grant_type", "client_credentials");
+            requestBody.add("client_id", clientId);
+            requestBody.add("client_secret", clientSecret);
+            requestBody.add("audience", audience);
+
+            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, headers);
+
+            log.info("Making client credentials request to Auth0:");
+            log.info("URL: {}", tokenUrl);
+            log.info("Client ID: {}", clientId);
+            log.info("Audience: {}", audience);
+            log.info("Client Secret: {}", clientSecret != null ? "***" + clientSecret.substring(Math.max(0, clientSecret.length() - 4)) : "null");
+
+            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
+
+            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
+                Map<String, Object> responseBody = response.getBody();
+
+                String accessToken = (String) responseBody.get("access_token");
+                String tokenType = (String) responseBody.get("token_type");
+                Object expiresIn = responseBody.get("expires_in");
+
+                log.info("Client credentials login successful. Token length: {}, Type: {}",
+                        accessToken.length(), tokenType);
+                log.info("Token starts with: {}", accessToken.substring(0, Math.min(50, accessToken.length())));
+
+                Long expiresInLong = expiresIn instanceof Number ? ((Number) expiresIn).longValue() : null;
+
+                return ResponseEntity.ok(new ApiLoginResponse(
+                        true,
+                        "Client credentials authentication successful",
+                        accessToken,
+                        tokenType != null ? tokenType : "Bearer",
+                        expiresInLong,
+                        clientId + "@clients" // Standard format for client credentials
+                ));
+
+            } else {
+                log.error("Client credentials login failed with status: {}", response.getStatusCode());
+                return ResponseEntity.status(response.getStatusCode())
+                        .body(new ApiLoginResponse(false, "Client authentication failed", null, null, null, null));
+            }
+
+        } catch (org.springframework.web.client.HttpClientErrorException e) {
+            log.error("Client credentials login failed - HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
+            return ResponseEntity.status(401)
+                    .body(new ApiLoginResponse(false, "Client authentication failed: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), null, null, null, null));
+        } catch (Exception e) {
+            log.error("Client credentials login failed: {}", e.getMessage());
+            return ResponseEntity.status(401)
+                    .body(new ApiLoginResponse(false, "Client authentication failed: " + e.getMessage(), null, null, null, null));
+        }
+    }
+
+
     /**
      * Logout endpoint - supports both GET and POST
      * POST version revokes token at Auth0 and returns logout URL
@@ -129,292 +194,6 @@ public class AuthController {
         return new SessionResponse(true, "Session active", jwt.getSubject(), jwt.getExpiresAt());
     }
 
-    /**
-     * Get access token from authenticated session - for use in API calls
-     * Exchanges the existing session for a JWT with audience
-     */
-    @GetMapping("/token")
-    public ResponseEntity<TokenResponse> getAccessToken(
-            @AuthenticationPrincipal OAuth2User oauth2User,
-            @RegisteredOAuth2AuthorizedClient("auth0") OAuth2AuthorizedClient authorizedClient) {
-
-        if (oauth2User == null || authorizedClient == null) {
-            return ResponseEntity.badRequest()
-                    .body(new TokenResponse(false, "No authenticated session found", null, null, null));
-        }
-
-        log.info("JWT access token requested for user: {}", (Object) oauth2User.getAttribute("sub"));
-
-        try {
-            // For now, let's just return the current access token and test if it works
-            String accessToken = authorizedClient.getAccessToken().getTokenValue();
-            String tokenType = authorizedClient.getAccessToken().getTokenType().getValue();
-
-            log.info("Returning current access token. Length: {}, Type: {}", accessToken.length(), tokenType);
-            log.info("Token starts with: {}", accessToken.substring(0, Math.min(50, accessToken.length())));
-
-            // Check if refresh token is available for future reference
-            if (authorizedClient.getRefreshToken() != null) {
-                log.info("Refresh token is available for future token exchange implementation");
-            } else {
-                log.warn("No refresh token available");
-            }
-
-            return ResponseEntity.ok(new TokenResponse(
-                    true,
-                    "Access token retrieved from session - testing if this works with API calls",
-                    accessToken,
-                    tokenType,
-                    oauth2User.getAttribute("sub")
-            ));
-        } catch (Exception e) {
-            log.error("Failed to get access token: {}", e.getMessage());
-            return ResponseEntity.internalServerError()
-                    .body(new TokenResponse(false, "Failed to get access token: " + e.getMessage(), null, null, null));
-        }
-    }
-
-    /**
-     * Exchange existing token for a JWT with audience
-     */
-    private String getJwtTokenWithAudience(OAuth2AuthorizedClient authorizedClient) {
-        log.info("Starting token exchange process");
-
-        RestTemplate restTemplate = new RestTemplate();
-        String tokenUrl = String.format("https://%s/oauth/token", auth0Domain);
-
-        log.info("Token URL: {}", tokenUrl);
-        log.info("Refresh token available: {}", authorizedClient.getRefreshToken() != null);
-
-        Map<String, String> request = Map.of(
-                "grant_type", "refresh_token",
-                "client_id", clientId,
-                "client_secret", clientSecret,
-                "refresh_token", authorizedClient.getRefreshToken().getTokenValue(),
-                "audience", audience // Add audience for JWT
-        );
-
-        log.info("Making token exchange request with audience: {}", audience);
-
-        try {
-            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
-
-            log.info("Token exchange response status: {}", response.getStatusCode());
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                Map<String, Object> responseBody = response.getBody();
-                String accessToken = (String) responseBody.get("access_token");
-                log.info("Token exchange successful. New token length: {}", accessToken.length());
-                log.info("New token starts with: {}", accessToken.substring(0, Math.min(50, accessToken.length())));
-                return accessToken;
-            } else {
-                log.error("Token exchange failed with status: {}", response.getStatusCode());
-                throw new RuntimeException("Failed to exchange token: " + response.getStatusCode());
-            }
-        } catch (Exception e) {
-            log.error("Exception during token exchange: {}", e.getMessage(), e);
-            throw new RuntimeException("Token exchange failed: " + e.getMessage(), e);
-        }
-    }
-
-    /**
-     * Check session for web-based authentication
-     */
-    @GetMapping("/session/web-check")
-    public ResponseEntity<SessionResponse> checkWebSession(@AuthenticationPrincipal OAuth2User oauth2User) {
-        if (oauth2User == null) {
-            return ResponseEntity.ok(new SessionResponse(false, "No web session found", null, null));
-        }
-
-        String userId = oauth2User.getAttribute("sub");
-        return ResponseEntity.ok(new SessionResponse(true, "Web session active", userId, null));
-    }
-
-    /**
-     * Get logout URL without actually logging out
-     */
-    @GetMapping("/logout-url")
-    public LogoutUrlResponse getLogoutUrl(HttpServletRequest request) {
-        String returnTo = getBaseUrl(request);
-        String logoutUrl = String.format("https://%s/v2/logout?client_id=%s&returnTo=%s",
-                auth0Domain, clientId, returnTo);
-
-        return new LogoutUrlResponse(logoutUrl, returnTo);
-    }
-
-    /**
-     * API Login endpoint - authenticate with username/password and get access token
-     * This uses Auth0's Resource Owner Password Credentials Grant (ROPC)
-     */
-    @PostMapping("/api-login")
-    public ResponseEntity<ApiLoginResponse> apiLogin(@RequestBody ApiLoginRequest loginRequest) {
-        if (loginRequest.username() == null || loginRequest.password() == null) {
-            return ResponseEntity.badRequest()
-                    .body(new ApiLoginResponse(false, "Username and password are required", null, null, null, null));
-        }
-
-        log.info("API login attempt for username: {}", loginRequest.username());
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            String tokenUrl = String.format("https://%s/oauth/token", auth0Domain);
-
-            // Auth0 expects form-encoded data, not JSON
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-            requestBody.add("grant_type", "password");
-            requestBody.add("username", loginRequest.username());
-            requestBody.add("password", loginRequest.password());
-            requestBody.add("client_id", clientId);
-            requestBody.add("client_secret", clientSecret);
-            requestBody.add("audience", audience);
-            requestBody.add("scope", "openid profile email");
-
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, headers);
-
-            log.info("Making ROPC request to Auth0 with audience: {}", audience);
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                Map<String, Object> responseBody = response.getBody();
-
-                String accessToken = (String) responseBody.get("access_token");
-                String tokenType = (String) responseBody.get("token_type");
-                Object expiresIn = responseBody.get("expires_in");
-
-                // Try to extract user ID from the token or use a placeholder
-                String userId = extractUserIdFromToken(accessToken);
-
-                log.info("API login successful for user: {}. Token length: {}, Type: {}",
-                        loginRequest.username(), accessToken.length(), tokenType);
-                log.info("Token starts with: {}", accessToken.substring(0, Math.min(50, accessToken.length())));
-
-                Long expiresInLong = expiresIn instanceof Number ? ((Number) expiresIn).longValue() : null;
-
-                return ResponseEntity.ok(new ApiLoginResponse(
-                        true,
-                        "Login successful",
-                        accessToken,
-                        tokenType != null ? tokenType : "Bearer",
-                        expiresInLong,
-                        userId
-                ));
-
-            } else {
-                log.error("API login failed with status: {}", response.getStatusCode());
-                return ResponseEntity.status(response.getStatusCode())
-                        .body(new ApiLoginResponse(false, "Authentication failed", null, null, null, null));
-            }
-
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            log.error("API login failed for user {} - HTTP {}: {}", loginRequest.username(), e.getStatusCode(), e.getResponseBodyAsString());
-            return ResponseEntity.status(401)
-                    .body(new ApiLoginResponse(false, "Authentication failed: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), null, null, null, null));
-        } catch (Exception e) {
-            log.error("API login failed for user {}: {}", loginRequest.username(), e.getMessage());
-            return ResponseEntity.status(401)
-                    .body(new ApiLoginResponse(false, "Authentication failed: " + e.getMessage(), null, null, null, null));
-        }
-    }
-
-    /**
-     * Alternative API Login using client credentials (for service-to-service authentication)
-     */
-    @PostMapping("/api-login-client")
-    public ResponseEntity<ApiLoginResponse> apiLoginClient() {
-        log.info("Client credentials login attempt");
-
-        try {
-            RestTemplate restTemplate = new RestTemplate();
-            String tokenUrl = String.format("https://%s/oauth/token", auth0Domain);
-
-            // Auth0 expects form-encoded data, not JSON
-            HttpHeaders headers = new HttpHeaders();
-            headers.setContentType(MediaType.APPLICATION_FORM_URLENCODED);
-
-            MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<>();
-            requestBody.add("grant_type", "client_credentials");
-            requestBody.add("client_id", clientId);
-            requestBody.add("client_secret", clientSecret);
-            requestBody.add("audience", audience);
-
-            HttpEntity<MultiValueMap<String, String>> request = new HttpEntity<>(requestBody, headers);
-
-            log.info("Making client credentials request to Auth0:");
-            log.info("URL: {}", tokenUrl);
-            log.info("Client ID: {}", clientId);
-            log.info("Audience: {}", audience);
-            log.info("Client Secret: {}", clientSecret != null ? "***" + clientSecret.substring(Math.max(0, clientSecret.length() - 4)) : "null");
-
-            ResponseEntity<Map> response = restTemplate.postForEntity(tokenUrl, request, Map.class);
-
-            if (response.getStatusCode().is2xxSuccessful() && response.getBody() != null) {
-                Map<String, Object> responseBody = response.getBody();
-
-                String accessToken = (String) responseBody.get("access_token");
-                String tokenType = (String) responseBody.get("token_type");
-                Object expiresIn = responseBody.get("expires_in");
-
-                log.info("Client credentials login successful. Token length: {}, Type: {}",
-                        accessToken.length(), tokenType);
-                log.info("Token starts with: {}", accessToken.substring(0, Math.min(50, accessToken.length())));
-
-                Long expiresInLong = expiresIn instanceof Number ? ((Number) expiresIn).longValue() : null;
-
-                return ResponseEntity.ok(new ApiLoginResponse(
-                        true,
-                        "Client credentials authentication successful",
-                        accessToken,
-                        tokenType != null ? tokenType : "Bearer",
-                        expiresInLong,
-                        clientId + "@clients" // Standard format for client credentials
-                ));
-
-            } else {
-                log.error("Client credentials login failed with status: {}", response.getStatusCode());
-                return ResponseEntity.status(response.getStatusCode())
-                        .body(new ApiLoginResponse(false, "Client authentication failed", null, null, null, null));
-            }
-
-        } catch (org.springframework.web.client.HttpClientErrorException e) {
-            log.error("Client credentials login failed - HTTP {}: {}", e.getStatusCode(), e.getResponseBodyAsString());
-            return ResponseEntity.status(401)
-                    .body(new ApiLoginResponse(false, "Client authentication failed: " + e.getStatusCode() + " - " + e.getResponseBodyAsString(), null, null, null, null));
-        } catch (Exception e) {
-            log.error("Client credentials login failed: {}", e.getMessage());
-            return ResponseEntity.status(401)
-                    .body(new ApiLoginResponse(false, "Client authentication failed: " + e.getMessage(), null, null, null, null));
-        }
-    }
-
-    /**
-     * Extract user ID from JWT token (basic implementation)
-     */
-    private String extractUserIdFromToken(String token) {
-        try {
-            // Basic JWT parsing - split by dots and decode the payload
-            String[] parts = token.split("\\.");
-            if (parts.length >= 2) {
-                byte[] decodedBytes = java.util.Base64.getUrlDecoder().decode(parts[1]);
-                String payload = new String(decodedBytes);
-
-                // Look for "sub" claim in the JSON payload
-                if (payload.contains("\"sub\"")) {
-                    int subStart = payload.indexOf("\"sub\":\"") + 7;
-                    int subEnd = payload.indexOf("\"", subStart);
-                    if (subStart > 6 && subEnd > subStart) {
-                        return payload.substring(subStart, subEnd);
-                    }
-                }
-            }
-        } catch (Exception e) {
-            log.warn("Could not extract user ID from token: {}", e.getMessage());
-        }
-        return null;
-    }
 
     /**
      * Determine the type of token based on claims
@@ -478,15 +257,6 @@ public class AuthController {
     }
 
     record SessionResponse(boolean active, String message, String userId, Object expiresAt) {
-    }
-
-    record LogoutUrlResponse(String logoutUrl, String returnTo) {
-    }
-
-    record TokenResponse(boolean success, String message, String accessToken, String tokenType, String userId) {
-    }
-
-    record ApiLoginRequest(String username, String password) {
     }
 
     record ApiLoginResponse(boolean success, String message, String accessToken, String tokenType, Long expiresIn,

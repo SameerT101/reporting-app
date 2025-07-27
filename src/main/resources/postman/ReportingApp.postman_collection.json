@@ -1,0 +1,198 @@
+{
+	"info": {
+		"_postman_id": "502c1b02-b228-4c5f-b0be-0981cce15102",
+		"name": "ReportingApp",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "47097114",
+		"_collection_link": "https://descent-module-geoscientist-76864108-5114017.postman.co/workspace/Sameer's-Workspace~919be209-5241-444c-868d-783d813ccd16/collection/47097114-502c1b02-b228-4c5f-b0be-0981cce15102?action=share&source=collection_link&creator=47097114"
+	},
+	"item": [
+		{
+			"name": "http://localhost:3000/api/auth/api-login-client",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"",
+							"// grab the accessToken from the JSON body",
+							"const json = pm.response.json();",
+							"pm.environment.set('access_token', json.accessToken);   // or pm.collectionVariables.set(...)",
+							"pm.environment.set('token_type',  json.tokenType || 'Bearer');",
+							"",
+							"// (optional) store expiry so you can auto‑refresh later",
+							"pm.environment.set('token_expiry', Date.now() + (json.expiresIn * 1000));",
+							"",
+							"console.log('Saved access_token  ' + json.accessToken);",
+							"",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "urlencoded",
+					"urlencoded": [
+						{
+							"key": "username",
+							"value": "noname@acme.com",
+							"type": "text"
+						},
+						{
+							"key": "password",
+							"value": "Passw0rd$123",
+							"type": "text"
+						}
+					]
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/auth/api-login-client",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"auth",
+						"api-login-client"
+					]
+				},
+				"description": "Generated from cURL: \ncurl -X POST http://localhost:3000/api/auth/api-login-client\n"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3000/api/reports/pdf",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// grab the accessToken from the JSON body",
+							"const json = pm.response.json();",
+							"pm.environment.set('access_token', json.accessToken);   // or pm.collectionVariables.set(...)",
+							"pm.environment.set('token_type',  json.tokenType || 'Bearer');",
+							"",
+							"// (optional) store expiry so you can auto‑refresh later",
+							"pm.environment.set('token_expiry', Date.now() + (json.expiresIn * 1000));",
+							""
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Authorization",
+						"value": "Bearer TOKEN"
+					}
+				],
+				"url": {
+					"raw": "http://localhost:3000/api/reports/pdf",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"reports",
+						"pdf"
+					]
+				},
+				"description": "Generated from cURL: curl -X GET http://localhost:3000/api/reports/pdf \\\n  -H \"Authorization: Bearer TOKEN\" \\\n  -o report.pdf"
+			},
+			"response": []
+		},
+		{
+			"name": "http://localhost:3000/api/reports/email",
+			"request": {
+				"method": "POST",
+				"header": [
+					{
+						"key": "Content-Type",
+						"value": "application/json"
+					},
+					{
+						"key": "Authorization",
+						"value": "Bearer TOKEN"
+					}
+				],
+				"body": {
+					"mode": "raw",
+					"raw": "{\n  \"reportType\": \"product_of_all_categories\",\n  \"userEmail\": \"alice@example.com\"\n}\n",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "http://localhost:3000/api/reports/email",
+					"protocol": "http",
+					"host": [
+						"localhost"
+					],
+					"port": "3000",
+					"path": [
+						"api",
+						"reports",
+						"email"
+					]
+				},
+				"description": "Generated from cURL: curl -X POST http://localhost:3000/api/reports/email \\\n  -H \"Content-Type: application/json\" \\\n  -H \"Authorization: Bearer TOKEN\" \\\n  -d '{\"reportType\":\"product_of_all_categories\",\"userEmail\":\"test@example.com\"}"
+			},
+			"response": []
+		}
+	],
+	"auth": {
+		"type": "bearer",
+		"bearer": [
+			{
+				"key": "token",
+				"value": "{{access_token}}",
+				"type": "string"
+			}
+		]
+	},
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "access_token",
+			"value": ""
+		}
+	]
+}

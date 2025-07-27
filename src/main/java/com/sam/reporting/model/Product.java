@@ -1,11 +1,9 @@
 package com.sam.reporting.model;
 
-import jakarta.persistence.*;
-import lombok.Data;
-import lombok.EqualsAndHashCode;
-import lombok.ToString;
+import jakarta.persistence.*;           // Entity, Id, GeneratedValue, ManyToOne, etc.
+import java.math.BigDecimal;           // money / prices
 
-import java.math.BigDecimal;
+import lombok.*;
 
 @Data
 @ToString(exclude = "category")

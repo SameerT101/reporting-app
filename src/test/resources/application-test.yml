@@ -14,7 +14,7 @@ spring:
     host: localhost
     username: guest
     password: guest
-  mail: # configure your SMTP (e.g., MailHog locally)
+  mail:              # configure your SMTP (e.g., MailHog locally)
     host: localhost
     port: 1025
     username: ''

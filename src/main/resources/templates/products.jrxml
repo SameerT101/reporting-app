@@ -1,7 +1,5 @@
 <!-- Created with Jaspersoft Studio version 7.0.3.final using JasperReports Library version 7.0.3-41034ca841d452f3305ba55b9042260aaa1ab5dd  -->
-<jasperReport name="Waves_Landscape" language="java" pageWidth="842" pageHeight="595" orientation="Landscape"
-              columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="0"
-              uuid="e115bc59-fd0f-446b-a585-04725e27d7f0">
+<jasperReport name="Waves_Landscape" language="java" pageWidth="842" pageHeight="595" orientation="Landscape" columnWidth="802" leftMargin="20" rightMargin="20" topMargin="20" bottomMargin="0" uuid="e115bc59-fd0f-446b-a585-04725e27d7f0">
     <property name="com.jaspersoft.studio.data.defaultdataadapter" value="One Empty Record"/>
     <style name="Title" fontName="Liberation Sans" fontSize="26.0" bold="true"/>
     <style name="SubTitle" forecolor="#666666" fontName="Liberation Sans" fontSize="18.0"/>
@@ -74,24 +72,20 @@
     <query language="sql"><![CDATA[]]></query>
     <background height="575" splitType="Stretch"/>
     <title height="104" splitType="Stretch">
-        <element kind="staticText" uuid="1dcadd54-7d50-4470-85ed-189e4d910b25" x="0" y="0" width="802" height="67"
-                 fontSize="54.0" bold="false" hTextAlign="Right" vTextAlign="Middle" style="Title">
+        <element kind="staticText" uuid="1dcadd54-7d50-4470-85ed-189e4d910b25" x="0" y="0" width="802" height="67" fontSize="54.0" bold="false" hTextAlign="Right" vTextAlign="Middle" style="Title">
             <text><![CDATA[Acme Industries]]></text>
         </element>
-        <element kind="staticText" uuid="862cb50c-5a5e-4906-a495-226e25115fb6" x="232" y="67" width="568" height="37"
-                 fontSize="26.0" hTextAlign="Right" style="SubTitle">
+        <element kind="staticText" uuid="862cb50c-5a5e-4906-a495-226e25115fb6" x="232" y="67" width="568" height="37" fontSize="26.0" hTextAlign="Right" style="SubTitle">
             <text><![CDATA[Product List]]></text>
         </element>
     </title>
     <pageHeader splitType="Stretch"/>
     <columnHeader height="25" splitType="Stretch">
-        <element kind="frame" uuid="35d90a9b-bb7e-4ec4-bfa2-68be1967d6b2" mode="Opaque" x="0" y="5" width="802"
-                 height="20" backcolor="#666666"/>
+        <element kind="frame" uuid="35d90a9b-bb7e-4ec4-bfa2-68be1967d6b2" mode="Opaque" x="0" y="5" width="802" height="20" backcolor="#666666"/>
     </columnHeader>
     <detail>
         <band height="391" splitType="Stretch">
-            <element kind="line" uuid="e5f21b91-7f24-498e-97a1-0e93db9225a4" positionType="FixRelativeToBottom" x="97"
-                     y="16" width="705" height="1">
+            <element kind="line" uuid="e5f21b91-7f24-498e-97a1-0e93db9225a4" positionType="FixRelativeToBottom" x="97" y="16" width="705" height="1">
                 <pen lineWidth="0.5" lineColor="#999999"/>
             </element>
             <element kind="component" uuid="f6ae0cb8-1726-449f-a82b-a72d9a83761d" x="0" y="16" width="580" height="200">
@@ -101,14 +95,12 @@
                     </datasetRun>
                     <column kind="single" uuid="d3de75e5-2cca-4564-9f01-b49f413a3bf9" width="190">
                         <columnHeader height="30" rowSpan="1" style="Table 1_CH">
-                            <element kind="staticText" uuid="a86c7dba-7300-4927-9927-418c974a023c" x="0" y="0"
-                                     width="190" height="30" fontSize="15.0">
+                            <element kind="staticText" uuid="a86c7dba-7300-4927-9927-418c974a023c" x="0" y="0" width="190" height="30" fontSize="15.0">
                                 <text><![CDATA[Product Name]]></text>
                             </element>
                         </columnHeader>
                         <detailCell height="30" style="Table 1_TD">
-                            <element kind="textField" uuid="dc200021-7a26-4539-9b7b-e1b7ae01769e" x="0" y="0"
-                                     width="190" height="30" fontSize="12.0">
+                            <element kind="textField" uuid="dc200021-7a26-4539-9b7b-e1b7ae01769e" x="0" y="0" width="190" height="30" fontSize="12.0">
                                 <expression><![CDATA[$F{productName}]]></expression>
                             </element>
                         </detailCell>
@@ -116,14 +108,12 @@
                     </column>
                     <column kind="single" uuid="9d4326f9-da03-4fbc-8fa3-d4184380de20" width="190">
                         <columnHeader height="30" rowSpan="1" style="Table 1_CH">
-                            <element kind="staticText" uuid="9316faf2-55b5-4e92-9bce-5c595317cb02" x="0" y="0"
-                                     width="190" height="30" fontSize="16.0">
+                            <element kind="staticText" uuid="9316faf2-55b5-4e92-9bce-5c595317cb02" x="0" y="0" width="190" height="30" fontSize="16.0">
                                 <text><![CDATA[Category]]></text>
                             </element>
                         </columnHeader>
                         <detailCell height="30" style="Table 1_TD">
-                            <element kind="textField" uuid="6acfd759-a925-4bac-b175-2b2e69594736" x="0" y="0"
-                                     width="190" height="30" fontSize="14.0">
+                            <element kind="textField" uuid="6acfd759-a925-4bac-b175-2b2e69594736" x="0" y="0" width="190" height="30" fontSize="14.0">
                                 <expression><![CDATA[$F{category}]]></expression>
                             </element>
                         </detailCell>
@@ -131,22 +121,19 @@
                     </column>
                     <column kind="single" uuid="1d5061ce-f933-4dfa-9cac-7382ea6aa5d4" width="270">
                         <columnHeader height="30" rowSpan="1" style="Table 1_CH">
-                            <element kind="staticText" uuid="d6a8a387-f891-4d3d-91f0-58aaa7dfe9a8" x="0" y="0"
-                                     width="270" height="30" fontSize="16.0">
+                            <element kind="staticText" uuid="d6a8a387-f891-4d3d-91f0-58aaa7dfe9a8" x="0" y="0" width="270" height="30" fontSize="16.0">
                                 <text><![CDATA[Price]]></text>
                             </element>
                         </columnHeader>
                         <detailCell height="30" style="Table 1_TD">
-                            <element kind="textField" uuid="4dd9068d-ff6b-4c38-b5cd-31a4f6e57509" x="0" y="0"
-                                     width="270" height="30" fontSize="14.0">
+                            <element kind="textField" uuid="4dd9068d-ff6b-4c38-b5cd-31a4f6e57509" x="0" y="0" width="270" height="30" fontSize="14.0">
                                 <expression><![CDATA[$F{price}]]></expression>
                             </element>
                         </detailCell>
                         <property name="com.jaspersoft.studio.components.table.model.column.name" value="Column3"/>
                     </column>
                 </component>
-                <property name="com.jaspersoft.studio.layout"
-                          value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
+                <property name="com.jaspersoft.studio.layout" value="com.jaspersoft.studio.editor.layout.VerticalRowLayout"/>
                 <property name="com.jaspersoft.studio.table.style.table_header" value="Table 1_TH"/>
                 <property name="com.jaspersoft.studio.table.style.column_header" value="Table 1_CH"/>
                 <property name="com.jaspersoft.studio.table.style.detail" value="Table 1_TD"/>
@@ -155,9 +142,7 @@
     </detail>
     <columnFooter splitType="Stretch"/>
     <pageFooter height="39" splitType="Stretch">
-        <element kind="textField" uuid="95484ca0-40b4-4752-95d8-1afbc33c820b" x="671" y="0" width="131" height="20"
-                 forecolor="#000000" fontSize="12.0" pattern="EEEEE dd MMMMM yyyy" bold="false" hTextAlign="Right"
-                 style="Column header">
+        <element kind="textField" uuid="95484ca0-40b4-4752-95d8-1afbc33c820b" x="671" y="0" width="131" height="20" forecolor="#000000" fontSize="12.0" pattern="EEEEE dd MMMMM yyyy" bold="false" hTextAlign="Right" style="Column header">
             <expression><![CDATA[new java.util.Date()]]></expression>
         </element>
     </pageFooter>

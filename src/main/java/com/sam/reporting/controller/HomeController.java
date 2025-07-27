@@ -1,11 +1,7 @@
 package com.sam.reporting.controller;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.annotation.AuthenticationPrincipal;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClient;
-import org.springframework.security.oauth2.client.OAuth2AuthorizedClientService;
 import org.springframework.security.oauth2.client.authentication.OAuth2AuthenticationToken;
 import org.springframework.security.oauth2.core.oidc.user.OidcUser;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -20,9 +16,6 @@ import java.util.Map;
 public class HomeController {
     private final Logger log = LoggerFactory.getLogger(this.getClass());
 
-    @Autowired
-    private OAuth2AuthorizedClientService authorizedClientService;
-
 
     @GetMapping("/")
     public String home(Model model, @AuthenticationPrincipal OidcUser principal, OAuth2AuthenticationToken authToken) {
@@ -31,21 +24,11 @@ public class HomeController {
             model.addAttribute("username", principal.getName());
             model.addAttribute("email", principal.getEmail());
             model.addAttribute("authenticated", true);
+            log.debug("User is authenticated");
 
-            // Get the access token for display
-            OAuth2AuthorizedClient authorizedClient =
-                    authorizedClientService.loadAuthorizedClient(
-                            authToken.getAuthorizedClientRegistrationId(),
-                            authToken.getName()
-                    );
-
-            if (authorizedClient != null) {
-                String accessToken = authorizedClient.getAccessToken().getTokenValue();
-                model.addAttribute("accessToken", accessToken);
-                model.addAttribute("tokenType", authorizedClient.getAccessToken().getTokenType().getValue());
-            }
         } else {
             model.addAttribute("authenticated", false);
+            log.debug("User is unauthenticated");
         }
         return "index";
     }
@@ -56,7 +39,7 @@ public class HomeController {
     @ResponseBody
     public UserProfile getProfile(@AuthenticationPrincipal Jwt jwt) {
         if (jwt == null) {
-            return new UserProfile("Anonymous", "Anonymous", "", null, null);
+            return new UserProfile("Anonymous", "Anonymous","",null,null);
         }
         return new UserProfile(
                 jwt.getSubject(),
@@ -66,6 +49,8 @@ public class HomeController {
                 jwt.getClaims()
         );
     }
+
+
 
 
     // Public endpoints - no authentication required
@@ -82,12 +67,7 @@ public class HomeController {
     }
 
     // Response DTOs
-    record UserProfile(String sub, String name, String email, String picture, Map<String, Object> claims) {
-    }
-
-    record HealthResponse(String status, String message) {
-    }
-
-    record InfoResponse(String name, String version) {
-    }
+    record UserProfile(String sub, String name, String email, String picture, Map<String, Object> claims) {}
+    record HealthResponse(String status, String message) {}
+    record InfoResponse(String name, String version) {}
 }

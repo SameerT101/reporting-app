@@ -1,16 +1,15 @@
 -- Seed data for categories and products
 
 -- Insert categories
-INSERT INTO categories (name)
-VALUES ('Electronics'),
-       ('Clothing'),
-       ('Books'),
-       ('Home & Garden'),
-       ('Sports');
+INSERT INTO categories (name) VALUES 
+('Electronics'),
+('Clothing'),
+('Books'),
+('Home & Garden'),
+('Sports');
 
 -- Insert products
-INSERT INTO products (name, price, category_id)
-VALUES
+INSERT INTO products (name, price, category_id) VALUES 
 -- Electronics
 ('Laptop', 999.99, (SELECT id FROM categories WHERE name = 'Electronics')),
 ('Smartphone', 699.99, (SELECT id FROM categories WHERE name = 'Electronics')),

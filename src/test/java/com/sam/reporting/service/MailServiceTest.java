@@ -10,18 +10,18 @@ import org.mockito.MockitoAnnotations;
 import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 
-import static org.junit.jupiter.api.Assertions.assertThrows;
-import static org.mockito.ArgumentMatchers.any;
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 public class MailServiceTest {
 
     @Mock
     private JavaMailSender javaMailSender;
-
+    
     @Mock
     private MimeMessage mimeMessage;
-
+    
     @InjectMocks
     private MailService mailService;
 
@@ -36,10 +36,10 @@ public class MailServiceTest {
         String to = "test@example.com";
         String subject = "Test Subject";
         String body = "Test Body";
-
+        
         // When
         mailService.sendPlain(to, subject, body);
-
+        
         // Then
         verify(javaMailSender, times(1)).send(any(SimpleMailMessage.class));
     }
@@ -52,12 +52,12 @@ public class MailServiceTest {
         String body = "Test Body";
         byte[] attachment = "test-attachment".getBytes();
         String filename = "test.txt";
-
+        
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
-
+        
         // When
         mailService.sendWithAttachment(to, subject, body, attachment, filename);
-
+        
         // Then
         verify(javaMailSender, times(1)).createMimeMessage();
         verify(javaMailSender, times(1)).send(mimeMessage);
@@ -71,15 +71,15 @@ public class MailServiceTest {
         String body = "Test Body";
         byte[] attachment = "test-attachment".getBytes();
         String filename = "test.txt";
-
+        
         when(javaMailSender.createMimeMessage()).thenReturn(mimeMessage);
         doThrow(new RuntimeException("Test exception")).when(javaMailSender).send(mimeMessage);
-
+        
         // When & Then
-        assertThrows(RuntimeException.class, () ->
-                mailService.sendWithAttachment(to, subject, body, attachment, filename)
+        assertThrows(RuntimeException.class, () -> 
+            mailService.sendWithAttachment(to, subject, body, attachment, filename)
         );
-
+        
         verify(javaMailSender, times(1)).createMimeMessage();
         verify(javaMailSender, times(1)).send(mimeMessage);
     }
